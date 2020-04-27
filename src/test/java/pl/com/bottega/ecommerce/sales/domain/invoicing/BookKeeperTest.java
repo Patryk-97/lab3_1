@@ -22,44 +22,39 @@ public class BookKeeperTest {
     private static BookKeeper bookKeeper;
 
     @Mock
-    private ClientData clientData;
-    @InjectMocks
-    private InvoiceRequest request;
-    @Mock
     private TaxPolicy taxPolicy;
-
-    private static RequestItem item;
     private static Tax tax;
-    private static Product product;
 
     @BeforeClass
     public static void setUp() {
         factory = new InvoiceFactory();
         bookKeeper = new BookKeeper(factory);
-        product = new Product(Id.generate(), Money.ZERO, "", ProductType.STANDARD);
-        item = new RequestItem(product.generateSnapshot(), 1, Money.ZERO);
         tax = new Tax(Money.ZERO, "");
     }
 
     @Test
     public void checkIfInvoiceContainsOneItem() {
         Mockito.when(taxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(tax);
-        request.add(item);
-        Assert.assertEquals(1, bookKeeper.issuance(request, taxPolicy).getItems().size());
+        InvoiceRequestBuilder invoiceRequestBuilder = InvoiceRequestBuilder.invoiceRequest();
+        invoiceRequestBuilder.withRequestItem(RequestItemFactory.createSimpleRequestItem());
+        Assert.assertEquals(1, bookKeeper.issuance(invoiceRequestBuilder.build(), taxPolicy).getItems().size());
     }
 
     @Test
     public void checkIfCalculateTaxIsCalledTwoTimes(){
         Mockito.when(taxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(tax);
-        request.add(item); request.add(item);
-        bookKeeper.issuance(request, taxPolicy);
+        InvoiceRequestBuilder invoiceRequestBuilder = InvoiceRequestBuilder.invoiceRequest();
+        invoiceRequestBuilder.withRequestItem(RequestItemFactory.createSimpleRequestItem());
+        invoiceRequestBuilder.withRequestItem(RequestItemFactory.createSimpleRequestItem());
+        bookKeeper.issuance(invoiceRequestBuilder.build(), taxPolicy);
         Mockito.verify(taxPolicy, Mockito.times(2)).calculateTax(Mockito.any(), Mockito.any());
     }
 
     @Test
     public void checkIfInvoiceContainsZeroItems(){
         Mockito.when(taxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(tax);
-        Assert.assertEquals(0, bookKeeper.issuance(request, taxPolicy).getItems().size());
+        InvoiceRequestBuilder invoiceRequestBuilder = InvoiceRequestBuilder.invoiceRequest();
+        Assert.assertEquals(0, bookKeeper.issuance(invoiceRequestBuilder.build(), taxPolicy).getItems().size());
     }
 
     @Test (expected = NullPointerException.class)
@@ -71,15 +66,21 @@ public class BookKeeperTest {
     @Test
     public void checkIfCalculateTaxIsCalledAtLeastOnce(){
         Mockito.when(taxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(tax);
-        request.add(item); request.add(item);
-        bookKeeper.issuance(request, taxPolicy);
+        InvoiceRequestBuilder invoiceRequestBuilder = InvoiceRequestBuilder.invoiceRequest();
+        invoiceRequestBuilder.withRequestItem(RequestItemFactory.createSimpleRequestItem());
+        invoiceRequestBuilder.withRequestItem(RequestItemFactory.createSimpleRequestItem());
+        bookKeeper.issuance(invoiceRequestBuilder.build(), taxPolicy);
         Mockito.verify(taxPolicy, Mockito.atLeastOnce()).calculateTax(Mockito.any(), Mockito.any());
     }
 
     @Test
     public void checkIfInvoiceContainsFourItems(){
         Mockito.when(taxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(tax);
-        request.add(item); request.add(item); request.add(item); request.add(item);
-        Assert.assertEquals(4, bookKeeper.issuance(request, taxPolicy).getItems().size());
+        InvoiceRequestBuilder invoiceRequestBuilder = InvoiceRequestBuilder.invoiceRequest();
+        invoiceRequestBuilder.withRequestItem(RequestItemFactory.createSimpleRequestItem());
+        invoiceRequestBuilder.withRequestItem(RequestItemFactory.createSimpleRequestItem());
+        invoiceRequestBuilder.withRequestItem(RequestItemFactory.createSimpleRequestItem());
+        invoiceRequestBuilder.withRequestItem(RequestItemFactory.createSimpleRequestItem());
+        Assert.assertEquals(4, bookKeeper.issuance(invoiceRequestBuilder.build(), taxPolicy).getItems().size());
     }
 }
