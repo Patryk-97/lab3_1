@@ -66,7 +66,12 @@ class BookKeeperTest {
     @Test
     void taxPolicyArgumentNullTest()
     {
+        Money money = new Money(new BigDecimal(10), Money.DEFAULT_CURRENCY);
+        Product product = new Product(Id.generate(), money, "Onion", ProductType.FOOD);
+        RequestItem requestItem = new RequestItem(product.generateSnapshot(), 10, money);
 
+        invoiceRequest.add(requestItem);
+        assertThrows(NullPointerException.class, () -> bookKeeper.issuance(invoiceRequest, null));
     }
 
     @Test
