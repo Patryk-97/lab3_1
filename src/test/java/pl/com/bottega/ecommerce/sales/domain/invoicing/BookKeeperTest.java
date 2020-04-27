@@ -7,7 +7,6 @@ import org.mockito.Mockito;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.Product;
-import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
 
 import java.math.BigDecimal;
@@ -48,11 +47,7 @@ class BookKeeperTest {
     @Test
     void oneItemInvoiceTest()
     {
-        Money money = new Money(new BigDecimal(10), Money.DEFAULT_CURRENCY);
-        Product product = ProductBuilder.builder().build();
-        RequestItem requestItem = new RequestItem(product.generateSnapshot(), 10, money);
-
-        invoiceRequest.add(requestItem);
+        invoiceRequest.add(RequestItemBuilder.builder().build());
         Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
         assertEquals(1, invoice.getItems().size());
     }
@@ -66,11 +61,7 @@ class BookKeeperTest {
     @Test
     void taxPolicyArgumentNullTest()
     {
-        Money money = new Money(new BigDecimal(10), Money.DEFAULT_CURRENCY);
-        Product product = ProductBuilder.builder().build();
-        RequestItem requestItem = new RequestItem(product.generateSnapshot(), 10, money);
-
-        invoiceRequest.add(requestItem);
+        invoiceRequest.add(RequestItemBuilder.builder().build());
         assertThrows(NullPointerException.class, () -> bookKeeper.issuance(invoiceRequest, null));
     }
 
@@ -80,11 +71,7 @@ class BookKeeperTest {
         int n = 7;
         for(int i = 0; i < n; i++)
         {
-            Money money = new Money(new BigDecimal(10), Money.DEFAULT_CURRENCY);
-            Product product = ProductBuilder.builder().build();
-            RequestItem requestItem = new RequestItem(product.generateSnapshot(), 10, money);
-
-            invoiceRequest.add(requestItem);
+            invoiceRequest.add(RequestItemBuilder.builder().build());
         }
 
         bookKeeper.issuance(invoiceRequest, taxPolicy);
