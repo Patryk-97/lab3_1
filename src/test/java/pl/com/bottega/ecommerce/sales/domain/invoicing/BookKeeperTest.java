@@ -60,7 +60,7 @@ class BookKeeperTest {
     @Test
     void invoiceRequestArgumentNullTest()
     {
-
+        assertThrows(NullPointerException.class, () -> bookKeeper.issuance(null, taxPolicy));
     }
 
     @Test
