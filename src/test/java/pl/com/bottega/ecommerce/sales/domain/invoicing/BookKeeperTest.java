@@ -77,6 +77,17 @@ class BookKeeperTest {
     @Test
     void calculateTaxNumberOfCallsTest()
     {
+        int n = 7;
+        for(int i = 0; i < n; i++)
+        {
+            Money money = new Money(new BigDecimal(10), Money.DEFAULT_CURRENCY);
+            Product product = new Product(Id.generate(), money, "Onion", ProductType.FOOD);
+            RequestItem requestItem = new RequestItem(product.generateSnapshot(), 10, money);
 
+            invoiceRequest.add(requestItem);
+        }
+
+        bookKeeper.issuance(invoiceRequest, taxPolicy);
+        verify(taxPolicy, times(n)).calculateTax(Mockito.any(), Mockito.any());
     }
 }
