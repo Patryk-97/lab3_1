@@ -49,7 +49,7 @@ class BookKeeperTest {
     void oneItemInvoiceTest()
     {
         Money money = new Money(new BigDecimal(10), Money.DEFAULT_CURRENCY);
-        Product product = new Product(Id.generate(), money, "Onion", ProductType.FOOD);
+        Product product = ProductBuilder.builder().build();
         RequestItem requestItem = new RequestItem(product.generateSnapshot(), 10, money);
 
         invoiceRequest.add(requestItem);
@@ -67,7 +67,7 @@ class BookKeeperTest {
     void taxPolicyArgumentNullTest()
     {
         Money money = new Money(new BigDecimal(10), Money.DEFAULT_CURRENCY);
-        Product product = new Product(Id.generate(), money, "Onion", ProductType.FOOD);
+        Product product = ProductBuilder.builder().build();
         RequestItem requestItem = new RequestItem(product.generateSnapshot(), 10, money);
 
         invoiceRequest.add(requestItem);
@@ -81,7 +81,7 @@ class BookKeeperTest {
         for(int i = 0; i < n; i++)
         {
             Money money = new Money(new BigDecimal(10), Money.DEFAULT_CURRENCY);
-            Product product = new Product(Id.generate(), money, "Onion", ProductType.FOOD);
+            Product product = ProductBuilder.builder().build();
             RequestItem requestItem = new RequestItem(product.generateSnapshot(), 10, money);
 
             invoiceRequest.add(requestItem);
