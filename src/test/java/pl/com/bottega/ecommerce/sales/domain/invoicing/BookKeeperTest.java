@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
+import pl.com.bottega.ecommerce.sales.domain.productscatalog.Product;
+import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
 
 import java.math.BigDecimal;
@@ -46,7 +48,13 @@ class BookKeeperTest {
     @Test
     void oneItemInvoiceTest()
     {
+        Money money = new Money(new BigDecimal(10), Money.DEFAULT_CURRENCY);
+        Product product = new Product(Id.generate(), money, "Onion", ProductType.FOOD);
+        RequestItem requestItem = new RequestItem(product.generateSnapshot(), 10, money);
 
+        invoiceRequest.add(requestItem);
+        Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+        assertEquals(1, invoice.getItems().size());
     }
 
     @Test
