@@ -16,22 +16,31 @@ import static org.mockito.Mockito.times;
 
 class BookKeeperTest {
 
+    private static BookKeeper bookKeeper;
+    private static TaxPolicy taxPolicy;
+    private InvoiceRequest invoiceRequest;
+
     @BeforeAll
     static void init()
     {
-
+        bookKeeper = new BookKeeper(new InvoiceFactory());
+        taxPolicy = mock(TaxPolicy.class);
+        Money money = new Money(new BigDecimal(10), Money.DEFAULT_CURRENCY);
+        when(taxPolicy.calculateTax(Mockito.any(), Mockito.any()))
+                .thenReturn(new Tax(money, "description"));
     }
 
     @BeforeEach
     void fixture()
     {
-
+        invoiceRequest = new InvoiceRequest(new ClientData(Id.generate(), "jan"));
     }
 
     @Test
     void emptyInvoiceTest()
     {
-
+        Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+        assertEquals(0, invoice.getItems().size());
     }
 
     @Test
