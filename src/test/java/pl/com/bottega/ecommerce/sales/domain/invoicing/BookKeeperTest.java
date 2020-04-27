@@ -51,9 +51,35 @@ public class BookKeeperTest {
     @Test
     public void checkIfCalculateTaxIsCalledTwoTimes(){
         Mockito.when(taxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(tax);
-        request.add(item);
-        request.add(item);
+        request.add(item); request.add(item);
         bookKeeper.issuance(request, taxPolicy);
         Mockito.verify(taxPolicy, Mockito.times(2)).calculateTax(Mockito.any(), Mockito.any());
+    }
+
+    @Test
+    public void checkIfInvoiceContainsZeroItems(){
+        Mockito.when(taxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(tax);
+        Assert.assertEquals(0, bookKeeper.issuance(request, taxPolicy).getItems().size());
+    }
+
+    @Test (expected = NullPointerException.class)
+    public void checkIfInvoiceRequestIsNull(){
+        Mockito.when(taxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(tax);
+        bookKeeper.issuance(null, taxPolicy);
+    }
+
+    @Test
+    public void checkIfCalculateTaxIsCalledAtLeastOnce(){
+        Mockito.when(taxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(tax);
+        request.add(item); request.add(item);
+        bookKeeper.issuance(request, taxPolicy);
+        Mockito.verify(taxPolicy, Mockito.atLeastOnce()).calculateTax(Mockito.any(), Mockito.any());
+    }
+
+    @Test
+    public void checkIfInvoiceContainsFourItems(){
+        Mockito.when(taxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(tax);
+        request.add(item); request.add(item); request.add(item); request.add(item);
+        Assert.assertEquals(4, bookKeeper.issuance(request, taxPolicy).getItems().size());
     }
 }
