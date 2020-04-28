@@ -8,26 +8,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InvoiceRequestBuilder {
-	private static final InvoiceRequestBuilder INSTANCE = new InvoiceRequestBuilder();
 	private ClientData clientData = null;
 	private List<RequestItem> items = new ArrayList<>();
 	
-	private InvoiceRequestBuilder(){}
-	
-	public static InvoiceRequestBuilder getInstance(){
-		return INSTANCE;
-	}
-	
-	public void addItem(RequestItem item){
+	public InvoiceRequestBuilder add(RequestItem item) {
 		this.items.add(item);
+		return this;
 	}
 	
-	public void setClientData(ClientData clientData){
+	public InvoiceRequestBuilder setClientData(ClientData clientData) {
 		this.clientData = clientData;
+		return this;
 	}
 	
-	public InvoiceRequest build(){
-		if(this.clientData == null) this.clientData = Mockito.mock(ClientData.class);
+	public InvoiceRequest build() {
+		if (this.clientData == null) this.clientData = Mockito.mock(ClientData.class);
 		
 		InvoiceRequest rV = new InvoiceRequest(this.clientData);
 		items.forEach(rV::add);
