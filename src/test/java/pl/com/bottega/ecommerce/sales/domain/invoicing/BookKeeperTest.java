@@ -1,6 +1,7 @@
 package pl.com.bottega.ecommerce.sales.domain.invoicing;
 
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -25,14 +26,26 @@ class BookKeeperTest {
 	@Mock
 	TaxPolicy taxPolicyMock;
 	
+	InvoiceRequest request;
+	BookKeeper bookKeeper;
+	Product sampleProduct;
+	RequestItem requestItem;
+	Tax tax;
+	
+	@BeforeEach
+	public void prepare() {
+		bookKeeper = new BookKeeper(new InvoiceFactory());
+		request = new InvoiceRequest(clientDataStub);
+		tax = new Tax(Money.ZERO, "");
+		
+		sampleProduct = new Product(Id.generate(), Money.ZERO, "", ProductType.STANDARD);
+		requestItem = new RequestItem(sampleProduct.generateSnapshot(), 1, Money.ZERO);
+	}
 	
 	@Test
-	void invoiceWithSingleItemRequest_Should_ReturnInvoiceWithSingleItem(){
-		BookKeeper bookKeeper = new BookKeeper(new InvoiceFactory());
-		InvoiceRequest request = new InvoiceRequest(clientDataStub);
-		var tax = new Tax(Money.ZERO, "");
+	void invoiceWithSingleItemRequest_Should_ReturnInvoiceWithSingleItem() {
 		Mockito.when(taxPolicyMock.calculateTax(Mockito.any(ProductType.class), Mockito.any(Money.class))).thenReturn(tax);
-		request.add(new RequestItem(new Product(Id.generate(), Money.ZERO, "", ProductType.STANDARD).generateSnapshot(), 1, Money.ZERO));
+		request.add(requestItem);
 		Invoice invoice = bookKeeper.issuance(request, taxPolicyMock);
 		assertThat(invoice.getItems().size(), is(1));
 	}
