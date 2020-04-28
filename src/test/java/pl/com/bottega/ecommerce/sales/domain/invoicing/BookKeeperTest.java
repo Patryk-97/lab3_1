@@ -23,12 +23,8 @@ import static org.hamcrest.Matchers.*;
 @ExtendWith(MockitoExtension.class)
 class BookKeeperTest {
 	@Mock
-	ClientData clientDataStub;
-	
-	@Mock
 	TaxPolicy taxPolicyMock;
 	
-	InvoiceRequest request;
 	BookKeeper bookKeeper;
 	Product sampleProduct;
 	RequestItem requestItem;
@@ -37,7 +33,6 @@ class BookKeeperTest {
 	@BeforeEach
 	public void prepare() {
 		bookKeeper = new BookKeeper(new InvoiceFactory());
-		request = new InvoiceRequest(clientDataStub);
 		tax = new Tax(Money.ZERO, "");
 		
 		sampleProduct = new Product(Id.generate(), Money.ZERO, "", ProductType.STANDARD);
@@ -47,29 +42,30 @@ class BookKeeperTest {
 	@Test
 	void invoiceWithSingleItemRequest_Should_ReturnInvoiceWithSingleItem() {
 		Mockito.when(taxPolicyMock.calculateTax(Mockito.any(), Mockito.any())).thenReturn(tax);
-		request.add(requestItem);
-		Invoice invoice = bookKeeper.issuance(request, taxPolicyMock);
+		Invoice invoice = bookKeeper.issuance(new InvoiceRequestBuilder().add(requestItem).build(), taxPolicyMock);
 		assertThat(invoice.getItems().size(), is(1));
 	}
 	
 	@Test
 	void createInvoiceWith2Item_Should_CallCalculateTax2Times() {
 		Mockito.when(taxPolicyMock.calculateTax(Mockito.any(), Mockito.any())).thenReturn(tax);
-		request.add(requestItem);
-		request.add(requestItem);
-		bookKeeper.issuance(request, taxPolicyMock);
+		bookKeeper.issuance(new InvoiceRequestBuilder()
+				.add(requestItem)
+				.add(requestItem)
+				.build(), taxPolicyMock);
+		
 		Mockito.verify(taxPolicyMock, Mockito.times(2)).calculateTax(Mockito.any(), Mockito.any());
 	}
 	
 	@Test
 	void createEmptyInvoice_Should_ReturnEmptyInvoice() {
-		Invoice invoice = bookKeeper.issuance(request, taxPolicyMock);
+		Invoice invoice = bookKeeper.issuance(new InvoiceRequestBuilder().build(), taxPolicyMock);
 		assertThat(invoice.getItems().size(), is(0));
 	}
 	
 	@Test
 	void createEmptyInvoice_Should_NotCallCalculateTax() {
-		Invoice invoice = bookKeeper.issuance(request, taxPolicyMock);
+		Invoice invoice = bookKeeper.issuance(new InvoiceRequestBuilder().build(), taxPolicyMock);
 		Mockito.verify(taxPolicyMock, Mockito.times(0)).calculateTax(Mockito.any(), Mockito.any());
 	}
 	
@@ -82,7 +78,7 @@ class BookKeeperTest {
 	void ifInvoiceFactoryIsUsedInIssuanceMethodCall() {
 		var factoryMock = Mockito.mock(InvoiceFactory.class);
 		BookKeeper keeper = new BookKeeper(factoryMock);
-		keeper.issuance(request, taxPolicyMock);
+		keeper.issuance(new InvoiceRequestBuilder().build(), taxPolicyMock);
 		
 		Mockito.verify(factoryMock, Mockito.atLeastOnce()).create(Mockito.any());
 	}
@@ -90,11 +86,12 @@ class BookKeeperTest {
 	@Test
 	void createInvoiceWithManyItems_Should_ReturnInvoiceWithTheSameNumberOfItems() {
 		int numberOfItemsInInvoice = 10;
+		var invoiceRequestBuilder = new InvoiceRequestBuilder();
 		for(int i = 0; i < numberOfItemsInInvoice; ++i)
-			request.add(requestItem);
+			invoiceRequestBuilder.add(requestItem);
 		
 		Mockito.when(taxPolicyMock.calculateTax(Mockito.any(), Mockito.any())).thenReturn(tax);
-		Invoice invoice = bookKeeper.issuance(request, taxPolicyMock);
+		Invoice invoice = bookKeeper.issuance(invoiceRequestBuilder.build(), taxPolicyMock);
 		assertThat(invoice.getItems().size(), is(numberOfItemsInInvoice));
 	}
 }
