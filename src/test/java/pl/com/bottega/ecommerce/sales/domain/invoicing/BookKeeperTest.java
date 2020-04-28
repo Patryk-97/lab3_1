@@ -49,4 +49,13 @@ class BookKeeperTest {
 		Invoice invoice = bookKeeper.issuance(request, taxPolicyMock);
 		assertThat(invoice.getItems().size(), is(1));
 	}
+	
+	@Test
+	void createInvoiceWith2Item_Should_CallCalculateTax2Times() {
+		Mockito.when(taxPolicyMock.calculateTax(Mockito.any(ProductType.class), Mockito.any(Money.class))).thenReturn(tax);
+		request.add(requestItem);
+		request.add(requestItem);
+		Invoice invoice = bookKeeper.issuance(request, taxPolicyMock);
+		assertThat(Mockito.mockingDetails(taxPolicyMock).getInvocations().size(), is(2));
+	}
 }
