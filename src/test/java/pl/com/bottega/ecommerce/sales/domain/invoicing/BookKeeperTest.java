@@ -58,4 +58,16 @@ class BookKeeperTest {
 		Invoice invoice = bookKeeper.issuance(request, taxPolicyMock);
 		assertThat(Mockito.mockingDetails(taxPolicyMock).getInvocations().size(), is(2));
 	}
+	
+	@Test
+	void createEmptyInvoice_Should_ReturnEmptyInvoice() {
+		Invoice invoice = bookKeeper.issuance(request, taxPolicyMock);
+		assertThat(invoice.getItems().size(), is(0));
+	}
+	
+	@Test
+	void createEmptyInvoice_Should_NotCallCalculateTax() {
+		Invoice invoice = bookKeeper.issuance(request, taxPolicyMock);
+		assertThat(Mockito.mockingDetails(taxPolicyMock).getInvocations().size(), is(0));
+	}
 }
