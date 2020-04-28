@@ -26,23 +26,21 @@ class BookKeeperTest {
 	TaxPolicy taxPolicyMock;
 	
 	BookKeeper bookKeeper;
-	Product sampleProduct;
-	RequestItem requestItem;
 	Tax tax;
 	
 	@BeforeEach
 	public void prepare() {
 		bookKeeper = new BookKeeper(new InvoiceFactory());
 		tax = new Tax(Money.ZERO, "");
-		
-		sampleProduct = new Product(Id.generate(), Money.ZERO, "", ProductType.STANDARD);
-		requestItem = new RequestItem(sampleProduct.generateSnapshot(), 1, Money.ZERO);
 	}
 	
 	@Test
 	void invoiceWithSingleItemRequest_Should_ReturnInvoiceWithSingleItem() {
 		Mockito.when(taxPolicyMock.calculateTax(Mockito.any(), Mockito.any())).thenReturn(tax);
-		Invoice invoice = bookKeeper.issuance(new InvoiceRequestBuilder().add(requestItem).build(), taxPolicyMock);
+		Invoice invoice = bookKeeper.issuance(new InvoiceRequestBuilder()
+						.add(RequestItemFactory.getRequestItem())
+						.build(),
+				taxPolicyMock);
 		assertThat(invoice.getItems().size(), is(1));
 	}
 	
@@ -50,8 +48,8 @@ class BookKeeperTest {
 	void createInvoiceWith2Item_Should_CallCalculateTax2Times() {
 		Mockito.when(taxPolicyMock.calculateTax(Mockito.any(), Mockito.any())).thenReturn(tax);
 		bookKeeper.issuance(new InvoiceRequestBuilder()
-				.add(requestItem)
-				.add(requestItem)
+				.add(RequestItemFactory.getRequestItem())
+				.add(RequestItemFactory.getRequestItem())
 				.build(), taxPolicyMock);
 		
 		Mockito.verify(taxPolicyMock, Mockito.times(2)).calculateTax(Mockito.any(), Mockito.any());
@@ -87,8 +85,9 @@ class BookKeeperTest {
 	void createInvoiceWithManyItems_Should_ReturnInvoiceWithTheSameNumberOfItems() {
 		int numberOfItemsInInvoice = 10;
 		var invoiceRequestBuilder = new InvoiceRequestBuilder();
-		for(int i = 0; i < numberOfItemsInInvoice; ++i)
-			invoiceRequestBuilder.add(requestItem);
+		for (int i = 0; i < numberOfItemsInInvoice; ++i)
+			invoiceRequestBuilder.add(RequestItemFactory.getRequestItem());
+		
 		
 		Mockito.when(taxPolicyMock.calculateTax(Mockito.any(), Mockito.any())).thenReturn(tax);
 		Invoice invoice = bookKeeper.issuance(invoiceRequestBuilder.build(), taxPolicyMock);
