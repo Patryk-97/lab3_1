@@ -25,15 +25,17 @@ class BookKeeperTest {
     static void init()
     {
         bookKeeper = new BookKeeper(new InvoiceFactory());
-        taxPolicy = mock(TaxPolicy.class);
-        Money money = new Money(new BigDecimal(10), Money.DEFAULT_CURRENCY);
-        when(taxPolicy.calculateTax(Mockito.any(), Mockito.any()))
-                .thenReturn(new Tax(money, "description"));
     }
 
     @BeforeEach
     void fixture()
     {
+        Money money = new Money(new BigDecimal(10), Money.DEFAULT_CURRENCY);
+
+        taxPolicy = mock(TaxPolicy.class);
+        when(taxPolicy.calculateTax(Mockito.any(), Mockito.any()))
+                .thenReturn(new Tax(money, "description"));
+
         invoiceRequest = new InvoiceRequest(new ClientData(Id.generate(), "jan"));
     }
 
@@ -50,6 +52,19 @@ class BookKeeperTest {
         invoiceRequest.add(RequestItemBuilder.builder().build());
         Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
         assertEquals(1, invoice.getItems().size());
+    }
+
+    @Test
+    void sevenItemInvoiceTest()
+    {
+        int n = 7;
+        for(int i = 0; i < n; i++)
+        {
+            invoiceRequest.add(RequestItemBuilder.builder().build());
+        }
+
+        Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+        assertEquals(n, invoice.getItems().size());
     }
 
     @Test
