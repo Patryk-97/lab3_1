@@ -18,51 +18,50 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
 
     private static BookKeeper sampleBookKeeper;
     private static InvoiceFactory sampleFactory;
-    private static RequestItem sampleItem;
     private static Tax sampleTax;
-    private static Product sampleProduct;
 
     @Mock private TaxPolicy sampleTaxPolicy;
-    @InjectMocks private InvoiceRequest sampleRequest;
 
     @BeforeAll public static void initialization() {
         sampleFactory = new InvoiceFactory();
         sampleBookKeeper = new BookKeeper(sampleFactory);
-        sampleProduct = new Product(Id.generate(), Money.ZERO, "Test product", ProductType.STANDARD);
-        sampleItem = new RequestItem(sampleProduct.generateSnapshot(), 1, Money.ZERO);
         sampleTax = new Tax(Money.ZERO, "Test tax");
     }
 
     @Test @DisplayName("Checking whether invoice contains single item. Should return true.")
     public void checkIfInvoiceContainsSingleItemTest() {
         Mockito.when(sampleTaxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(sampleTax);
-        sampleRequest.add(sampleItem);
-        Assertions.assertEquals(1, sampleBookKeeper.issuance(sampleRequest, sampleTaxPolicy).getItems().size());
+        InvoiceRequestBuilder invoiceRequestBuilder = InvoiceRequestBuilder.invoiceRequest();
+        invoiceRequestBuilder.requestItem(RequestItemBuilder.buildSampleRequest());
+        Assertions.assertEquals(1, sampleBookKeeper.issuance(invoiceRequestBuilder.build(), sampleTaxPolicy).getItems().size());
 
     }
 
     @Test @DisplayName("Checking whether invoice contains five items. Should return true.")
     public void checkIfInvoiceContainsFiveItemsTest() {
         Mockito.when(sampleTaxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(sampleTax);
-        sampleRequest.add(sampleItem);
-        sampleRequest.add(sampleItem);
-        sampleRequest.add(sampleItem);
-        sampleRequest.add(sampleItem);
-        sampleRequest.add(sampleItem);
-        Assertions.assertEquals(5, sampleBookKeeper.issuance(sampleRequest, sampleTaxPolicy).getItems().size());
+        InvoiceRequestBuilder invoiceRequestBuilder = InvoiceRequestBuilder.invoiceRequest();
+        invoiceRequestBuilder.requestItem(RequestItemBuilder.buildSampleRequest());
+        invoiceRequestBuilder.requestItem(RequestItemBuilder.buildSampleRequest());
+        invoiceRequestBuilder.requestItem(RequestItemBuilder.buildSampleRequest());
+        invoiceRequestBuilder.requestItem(RequestItemBuilder.buildSampleRequest());
+        invoiceRequestBuilder.requestItem(RequestItemBuilder.buildSampleRequest());
+        Assertions.assertEquals(5, sampleBookKeeper.issuance(invoiceRequestBuilder.build(), sampleTaxPolicy).getItems().size());
 
     }
 
     @Test @DisplayName("Checking whether invoice contains no item. Should return true.") public void checkIfInvoiceContainsNoneItemTest() {
-        Assertions.assertEquals(0, sampleBookKeeper.issuance(sampleRequest, sampleTaxPolicy).getItems().size());
+        InvoiceRequestBuilder invoiceRequestBuilder = InvoiceRequestBuilder.invoiceRequest();
+        Assertions.assertEquals(0, sampleBookKeeper.issuance(invoiceRequestBuilder.build(), sampleTaxPolicy).getItems().size());
     }
 
     @Test @DisplayName("Checking whether calculateTax method is called two times. Should return true.")
     public void checkIfCalculateTaxIsCalledTwoTimesTest() {
         Mockito.when(sampleTaxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(sampleTax);
-        sampleRequest.add(sampleItem);
-        sampleRequest.add(sampleItem);
-        sampleBookKeeper.issuance(sampleRequest, sampleTaxPolicy);
+        InvoiceRequestBuilder invoiceRequestBuilder = InvoiceRequestBuilder.invoiceRequest();
+        invoiceRequestBuilder.requestItem(RequestItemBuilder.buildSampleRequest());
+        invoiceRequestBuilder.requestItem(RequestItemBuilder.buildSampleRequest());
+        sampleBookKeeper.issuance(invoiceRequestBuilder.build(), sampleTaxPolicy);
         Mockito.verify(sampleTaxPolicy, Mockito.times(2)).calculateTax(Mockito.any(), Mockito.any());
     }
 
@@ -74,8 +73,9 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
     @Test @DisplayName("Checking whether calculateTax method is called one time. Should return true.")
     public void checkIfCalculateTaxIsCalledOneTimeTest() {
         Mockito.when(sampleTaxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(sampleTax);
-        sampleRequest.add(sampleItem);
-        sampleBookKeeper.issuance(sampleRequest, sampleTaxPolicy);
+        InvoiceRequestBuilder invoiceRequestBuilder = InvoiceRequestBuilder.invoiceRequest();
+        invoiceRequestBuilder.requestItem(RequestItemBuilder.buildSampleRequest());
+        sampleBookKeeper.issuance(invoiceRequestBuilder.build(), sampleTaxPolicy);
         Mockito.verify(sampleTaxPolicy, Mockito.times(1)).calculateTax(Mockito.any(), Mockito.any());
     }
 
