@@ -41,4 +41,14 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
 
     }
 
+    @Test @DisplayName("Checking whether calculateTax method is called two times. Should return true.")
+    public void checkIfCalculateTaxIsCalledTwoTimesTest() {
+        Mockito.when(sampleTaxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(sampleTax);
+        sampleRequest.add(sampleItem);
+        sampleRequest.add(sampleItem);
+        sampleBookKeeper.issuance(sampleRequest, sampleTaxPolicy);
+        Mockito.verify(sampleTaxPolicy, Mockito.times(2)).calculateTax(Mockito.any(), Mockito.any());
+    }
 }
+
+
