@@ -41,6 +41,22 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
 
     }
 
+    @Test @DisplayName("Checking whether invoice contains five items. Should return true.")
+    public void checkIfInvoiceContainsFiveItemsTest() {
+        Mockito.when(sampleTaxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(sampleTax);
+        sampleRequest.add(sampleItem);
+        sampleRequest.add(sampleItem);
+        sampleRequest.add(sampleItem);
+        sampleRequest.add(sampleItem);
+        sampleRequest.add(sampleItem);
+        Assertions.assertEquals(5, sampleBookKeeper.issuance(sampleRequest, sampleTaxPolicy).getItems().size());
+
+    }
+
+    @Test @DisplayName("Checking whether invoice contains no item. Should return true.") public void checkIfInvoiceContainsNoneItemTest() {
+        Assertions.assertEquals(0, sampleBookKeeper.issuance(sampleRequest, sampleTaxPolicy).getItems().size());
+    }
+
     @Test @DisplayName("Checking whether calculateTax method is called two times. Should return true.")
     public void checkIfCalculateTaxIsCalledTwoTimesTest() {
         Mockito.when(sampleTaxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(sampleTax);
@@ -49,6 +65,19 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
         sampleBookKeeper.issuance(sampleRequest, sampleTaxPolicy);
         Mockito.verify(sampleTaxPolicy, Mockito.times(2)).calculateTax(Mockito.any(), Mockito.any());
     }
-}
 
+    @Test @DisplayName("Checking whether issuance returns null. Should return NullPointerException.")
+    public void checkIfIssuanceReturnsNull() {
+        Assertions.assertThrows(NullPointerException.class, () -> sampleBookKeeper.issuance(null, sampleTaxPolicy));
+    }
+
+    @Test @DisplayName("Checking whether calculateTax method is called one time. Should return true.")
+    public void checkIfCalculateTaxIsCalledOneTimeTest() {
+        Mockito.when(sampleTaxPolicy.calculateTax(Mockito.any(), Mockito.any())).thenReturn(sampleTax);
+        sampleRequest.add(sampleItem);
+        sampleBookKeeper.issuance(sampleRequest, sampleTaxPolicy);
+        Mockito.verify(sampleTaxPolicy, Mockito.times(1)).calculateTax(Mockito.any(), Mockito.any());
+    }
+
+}
 
