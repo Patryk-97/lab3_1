@@ -10,7 +10,6 @@ import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -20,14 +19,12 @@ public class BookKeeperIssuanceTests {
 
     private TaxPolicy taxPolicyMock;
     private BookKeeper bookKeeperMock;
-    private InvoiceRequest invoiceRequest;
     private RequestItem requestItem;
 
     @Before
     public void initialize() {
         bookKeeperMock = new BookKeeper(new InvoiceFactory());
 
-        invoiceRequest = new InvoiceRequest(mock(ClientData.class));
         ProductData productData = new Product(mock(Id.class), mock(Money.class), "", ProductType.STANDARD).generateSnapshot();
         requestItem = new RequestItem(productData, 0, Money.ZERO);
 
@@ -37,7 +34,7 @@ public class BookKeeperIssuanceTests {
 
     @Test
     public void testIfOnePositionInvoiceReturnsOnePositionInvoice() {
-        invoiceRequest.add(requestItem);
+        InvoiceRequest invoiceRequest = new InvoiceRequestBuilder().withItems(1, requestItem).build();
 
         int invoiceLength = bookKeeperMock.issuance(invoiceRequest, taxPolicyMock).getItems().size();
 
@@ -46,8 +43,7 @@ public class BookKeeperIssuanceTests {
 
     @Test
     public void testIfTwoPositionInvoiceUsesCalculateTaxMethodTwice() {
-        invoiceRequest.add(requestItem);
-        invoiceRequest.add(requestItem);
+        InvoiceRequest invoiceRequest = new InvoiceRequestBuilder().withItems(2, requestItem).build();
 
         bookKeeperMock.issuance(invoiceRequest, taxPolicyMock);
 
@@ -56,6 +52,8 @@ public class BookKeeperIssuanceTests {
 
     @Test
     public void testIfZeroPositionInvoiceReturnsZeroPositionInvoice() {
+        InvoiceRequest invoiceRequest = new InvoiceRequestBuilder().build();
+
         int invoiceLength = bookKeeperMock.issuance(invoiceRequest, taxPolicyMock).getItems().size();
 
         assertThat(0, is(invoiceLength));
@@ -63,7 +61,7 @@ public class BookKeeperIssuanceTests {
 
     @Test
     public void testIfZeroPositionInvoiceUsesCalculateTaxMethodZeroTimes() {
-        bookKeeperMock.issuance(invoiceRequest, taxPolicyMock);
+        InvoiceRequest invoiceRequest = new InvoiceRequestBuilder().build();
 
         verify(taxPolicyMock, times(0)).calculateTax(any(), any());
     }
@@ -72,8 +70,7 @@ public class BookKeeperIssuanceTests {
     public void testIfInvoiceIsCalculatedCorrectly() {
         when(taxPolicyMock.calculateTax(any(), any())).thenReturn(new Tax(new Money(BigDecimal.valueOf(2)), ""));
 
-        invoiceRequest.add(requestItem);
-        invoiceRequest.add(requestItem);
+        InvoiceRequest invoiceRequest = new InvoiceRequestBuilder().withItems(2, requestItem).build();
 
         Invoice invoice = bookKeeperMock.issuance(invoiceRequest, taxPolicyMock);
 
@@ -87,7 +84,7 @@ public class BookKeeperIssuanceTests {
         when(requestItemMock.getTotalCost()).thenReturn(new Money(BigDecimal.ZERO));
         when(requestItemMock.getQuantity()).thenReturn(0);
 
-        invoiceRequest.add(requestItemMock);
+        InvoiceRequest invoiceRequest = new InvoiceRequestBuilder().withItems(3, requestItemMock).build();
 
         bookKeeperMock.issuance(invoiceRequest, taxPolicyMock);
 
