@@ -79,4 +79,18 @@ public class BookKeeperIssuanceTests {
 
         assertThat(new Money(BigDecimal.valueOf(4)), is(invoice.getGros()));
     }
+
+    @Test
+    public void testIfDataFromInvoicePositionsIsUsed() {
+        RequestItem requestItemMock = mock(RequestItem.class);
+        when(requestItemMock.getProductData()).thenReturn(new Product(mock(Id.class), mock(Money.class), "", ProductType.STANDARD).generateSnapshot());
+        when(requestItemMock.getTotalCost()).thenReturn(new Money(BigDecimal.ZERO));
+        when(requestItemMock.getQuantity()).thenReturn(0);
+
+        invoiceRequest.add(requestItemMock);
+
+        bookKeeperMock.issuance(invoiceRequest, taxPolicyMock);
+
+        verify(requestItemMock, atLeastOnce()).getTotalCost();
+    }
 }
