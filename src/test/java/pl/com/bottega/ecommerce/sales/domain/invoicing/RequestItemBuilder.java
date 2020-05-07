@@ -5,6 +5,7 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
 import java.math.BigDecimal;
 
 public class RequestItemBuilder {
+
     private int quantity;
     private Money money = Money.ZERO;
 

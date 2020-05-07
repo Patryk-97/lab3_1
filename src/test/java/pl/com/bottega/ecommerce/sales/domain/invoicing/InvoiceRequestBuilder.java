@@ -5,6 +5,7 @@ import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
 import static org.mockito.Mockito.mock;
 
 public class InvoiceRequestBuilder {
+
     private InvoiceRequest invoiceRequest = new InvoiceRequest(mock(ClientData.class));
 
     public InvoiceRequestBuilder withItems(int size, RequestItem requestItem) {
