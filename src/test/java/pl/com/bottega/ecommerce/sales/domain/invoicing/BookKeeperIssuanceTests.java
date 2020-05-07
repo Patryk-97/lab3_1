@@ -50,4 +50,11 @@ public class BookKeeperIssuanceTests {
 
         verify(taxPolicyMock, times(2)).calculateTax(any(), any());
     }
+
+    @Test
+    public void testIfZeroPositionInvoiceUsesCalculateTaxMethodZeroTimes() {
+        bookKeeperMock.issuance(invoiceRequest, taxPolicyMock);
+
+        verify(taxPolicyMock, times(0)).calculateTax(any(), any());
+    }
 }
