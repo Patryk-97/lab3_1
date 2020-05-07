@@ -25,7 +25,7 @@ public class BookKeeperIssuanceTests {
     public void initialize() {
         bookKeeperMock = new BookKeeper(new InvoiceFactory());
 
-        ProductData productData = new Product(mock(Id.class), mock(Money.class), "", ProductType.STANDARD).generateSnapshot();
+        ProductData productData = new ProductDataBuilder().buildAny();
         requestItem = new RequestItem(productData, 0, Money.ZERO);
 
         taxPolicyMock = mock(TaxPolicy.class);
@@ -63,6 +63,8 @@ public class BookKeeperIssuanceTests {
     public void testIfZeroPositionInvoiceUsesCalculateTaxMethodZeroTimes() {
         InvoiceRequest invoiceRequest = new InvoiceRequestBuilder().build();
 
+        bookKeeperMock.issuance(invoiceRequest, taxPolicyMock);
+
         verify(taxPolicyMock, times(0)).calculateTax(any(), any());
     }
 
@@ -80,7 +82,7 @@ public class BookKeeperIssuanceTests {
     @Test
     public void testIfDataFromInvoicePositionsIsUsed() {
         RequestItem requestItemMock = mock(RequestItem.class);
-        when(requestItemMock.getProductData()).thenReturn(new Product(mock(Id.class), mock(Money.class), "", ProductType.STANDARD).generateSnapshot());
+        when(requestItemMock.getProductData()).thenReturn(new ProductDataBuilder().buildAny());
         when(requestItemMock.getTotalCost()).thenReturn(new Money(BigDecimal.ZERO));
         when(requestItemMock.getQuantity()).thenReturn(0);
 
