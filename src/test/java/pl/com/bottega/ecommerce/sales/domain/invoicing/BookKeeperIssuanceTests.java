@@ -18,6 +18,7 @@ public class BookKeeperIssuanceTests {
     private TaxPolicy taxPolicyMock;
     private BookKeeper bookKeeperMock;
     private InvoiceRequest invoiceRequest;
+    private RequestItem requestItem;
 
     @Before
     public void initialize() {
@@ -25,7 +26,7 @@ public class BookKeeperIssuanceTests {
 
         invoiceRequest = new InvoiceRequest(mock(ClientData.class));
         ProductData productData = new Product(mock(Id.class), mock(Money.class), "", ProductType.STANDARD).generateSnapshot();
-        invoiceRequest.add(new RequestItem(productData, 0, Money.ZERO));
+        requestItem = new RequestItem(productData, 0, Money.ZERO);
 
         taxPolicyMock = mock(TaxPolicy.class);
         when(taxPolicyMock.calculateTax(ProductType.STANDARD, Money.ZERO)).thenReturn(new Tax(Money.ZERO, ""));
@@ -33,8 +34,20 @@ public class BookKeeperIssuanceTests {
 
     @Test
     public void testIfOnePositionInvoiceReturnsOnePositionInvoice() {
+        invoiceRequest.add(requestItem);
+
         int invoiceLength = bookKeeperMock.issuance(invoiceRequest, taxPolicyMock).getItems().size();
 
         assertThat(1, is(invoiceLength));
+    }
+
+    @Test
+    public void testIfTwoPositionInvoiceUsesCalculateTaxMethodTwice() {
+        invoiceRequest.add(requestItem);
+        invoiceRequest.add(requestItem);
+
+        bookKeeperMock.issuance(invoiceRequest, taxPolicyMock);
+
+        verify(taxPolicyMock, times(2)).calculateTax(any(), any());
     }
 }
