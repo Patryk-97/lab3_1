@@ -23,7 +23,7 @@ public class BookKeeperIssuanceTests {
         requestItem = new RequestItemBuilder().withQuantity(0).build();
 
         taxPolicyMock = mock(TaxPolicy.class);
-        when(taxPolicyMock.calculateTax(any(), any())).thenReturn(new Tax(Money.ZERO, ""));
+        when(taxPolicyMock.calculateTax(any(), any())).thenReturn(new TaxBuilder().build());
     }
 
     @Test
@@ -64,7 +64,7 @@ public class BookKeeperIssuanceTests {
 
     @Test
     public void testIfInvoiceIsCalculatedCorrectly() {
-        when(taxPolicyMock.calculateTax(any(), any())).thenReturn(new Tax(new Money(BigDecimal.valueOf(2)), ""));
+        when(taxPolicyMock.calculateTax(any(), any())).thenReturn(new TaxBuilder().withMoney(2).build());
 
         InvoiceRequest invoiceRequest = new InvoiceRequestBuilder().withItems(2, requestItem).build();
 
