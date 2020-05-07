@@ -52,6 +52,13 @@ public class BookKeeperIssuanceTests {
     }
 
     @Test
+    public void testIfZeroPositionInvoiceReturnsZeroPositionInvoice() {
+        int invoiceLength = bookKeeperMock.issuance(invoiceRequest, taxPolicyMock).getItems().size();
+
+        assertThat(0, is(invoiceLength));
+    }
+
+    @Test
     public void testIfZeroPositionInvoiceUsesCalculateTaxMethodZeroTimes() {
         bookKeeperMock.issuance(invoiceRequest, taxPolicyMock);
 
