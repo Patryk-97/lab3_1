@@ -2,11 +2,6 @@ package pl.com.bottega.ecommerce.sales.domain.invoicing;
 
 import org.junit.Before;
 import org.junit.Test;
-import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
-import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
-import pl.com.bottega.ecommerce.sales.domain.productscatalog.Product;
-import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductData;
-import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
 
 import java.math.BigDecimal;
@@ -25,8 +20,7 @@ public class BookKeeperIssuanceTests {
     public void initialize() {
         bookKeeperMock = new BookKeeper(new InvoiceFactory());
 
-        ProductData productData = new ProductDataBuilder().buildAny();
-        requestItem = new RequestItem(productData, 0, Money.ZERO);
+        requestItem = new RequestItemBuilder().withQuantity(0).build();
 
         taxPolicyMock = mock(TaxPolicy.class);
         when(taxPolicyMock.calculateTax(any(), any())).thenReturn(new Tax(Money.ZERO, ""));
