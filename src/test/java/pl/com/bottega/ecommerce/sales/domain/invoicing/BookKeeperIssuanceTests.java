@@ -9,6 +9,9 @@ import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductData;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -29,7 +32,7 @@ public class BookKeeperIssuanceTests {
         requestItem = new RequestItem(productData, 0, Money.ZERO);
 
         taxPolicyMock = mock(TaxPolicy.class);
-        when(taxPolicyMock.calculateTax(ProductType.STANDARD, Money.ZERO)).thenReturn(new Tax(Money.ZERO, ""));
+        when(taxPolicyMock.calculateTax(any(), any())).thenReturn(new Tax(Money.ZERO, ""));
     }
 
     @Test
@@ -63,5 +66,17 @@ public class BookKeeperIssuanceTests {
         bookKeeperMock.issuance(invoiceRequest, taxPolicyMock);
 
         verify(taxPolicyMock, times(0)).calculateTax(any(), any());
+    }
+
+    @Test
+    public void testIfInvoiceIsCalculatedCorrectly() {
+        when(taxPolicyMock.calculateTax(any(), any())).thenReturn(new Tax(new Money(BigDecimal.valueOf(2)), ""));
+
+        invoiceRequest.add(requestItem);
+        invoiceRequest.add(requestItem);
+
+        Invoice invoice = bookKeeperMock.issuance(invoiceRequest, taxPolicyMock);
+
+        assertThat(new Money(BigDecimal.valueOf(4)), is(invoice.getGros()));
     }
 }
