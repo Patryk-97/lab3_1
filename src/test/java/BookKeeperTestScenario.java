@@ -1,8 +1,9 @@
 import org.junit.jupiter.api.Test;
 
 public class BookKeeperTestScenario {
+
     @Test
-    void invoiceRequestWithTwoRequestShouldReturnInvoiceWithTwoItems(){
+    void invoiceRequestWithTwoRequestShouldShouldCallCalculateTaxMethodTwice(){
 
     }
 
@@ -10,5 +11,5 @@ public class BookKeeperTestScenario {
     void invoiceRequestWithOneRequestShouldReturnInvoiceWithOneItem(){
 
     }
-    
+
 }
