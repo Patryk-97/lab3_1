@@ -12,7 +12,7 @@ import java.util.List;
 
 public class InvoiceRequestFactory {
 
-    private static class InvoiceRequestBuilder {
+    public static class InvoiceRequestBuilder {
         private List<RequestItem> items;
         private ClientData data;
 
@@ -21,7 +21,7 @@ public class InvoiceRequestFactory {
             data = new Client().generateSnapshot();
         }
 
-        private static class RequestItemBuilder {
+        public static class RequestItemBuilder {
 
             private InvoiceRequestBuilder parent;
             private ProductType type = ProductType.STANDARD;
