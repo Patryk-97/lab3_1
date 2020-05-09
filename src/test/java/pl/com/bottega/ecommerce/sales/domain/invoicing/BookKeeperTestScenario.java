@@ -38,15 +38,21 @@ class BookKeeperTestScenario {
                 .when(mockedPolicy)
                 .calculateTax(Mockito.any(ProductType.class), Mockito.any(Money.class));
 
-        Product testProduct1 = new Product(Id.generate(), Money.ZERO, "ProductMock1", ProductType.STANDARD);
-        Product testProduct2 = new Product(Id.generate(), Money.ZERO, "ProductMock2", ProductType.STANDARD);
-
         Mockito.doReturn(new Invoice(Id.generate(), mockedClientData))
                 .when(mockedFactory)
                 .create(Mockito.any(ClientData.class));
-        InvoiceRequest request = new InvoiceRequest(mockedClientData);
-        request.add(new RequestItem(testProduct1.generateSnapshot(), 1, Money.ZERO));
-        request.add(new RequestItem(testProduct2.generateSnapshot(), 1, Money.ZERO));
+        
+        InvoiceRequest request = InvoiceRequestFactory.builder()
+                .attachClientData(mockedClientData)
+                .addItem()
+                .ofProductName("TestProduct1")
+                .ofQuantity(1)
+                .accept()
+                .addItem()
+                .ofProductName("TestProduct2")
+                .ofQuantity(1)
+                .accept()
+                .build();
         BookKeeper keeper = new BookKeeper(mockedFactory);
 
         keeper.issuance(request, mockedPolicy);
