@@ -103,7 +103,7 @@ class BookKeeperTestScenario {
     }
 
     @Test
-    void method2(){
+    void twoInvoiceRequestsWithTheSameItemsFromTwoOtherClientsShouldReturnTwoInvoicesThatShouldHaveDifferenceInClientDataOnly(){
 
     }
 }
