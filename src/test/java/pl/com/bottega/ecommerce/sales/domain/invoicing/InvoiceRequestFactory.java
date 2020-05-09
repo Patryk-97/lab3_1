@@ -28,9 +28,15 @@ public class InvoiceRequestFactory {
             private String productName = "Template";
             private int quantity = 0;
             private Money price = Money.ZERO;
+            private Id id = null;
 
             public RequestItemBuilder(InvoiceRequestBuilder parentBuilder) {
                 parent = parentBuilder;
+            }
+
+            public RequestItemBuilder ofId(Id id) {
+                this.id = id;
+                return this;
             }
 
             public RequestItemBuilder ofType(ProductType type) {
@@ -54,7 +60,7 @@ public class InvoiceRequestFactory {
             }
 
             public InvoiceRequestBuilder accept() {
-                var item = new RequestItem(new Product(Id.generate(),
+                var item = new RequestItem(new Product(this.id == null ? Id.generate() : this.id,
                         this.price,
                         this.productName,
                         this.type).generateSnapshot(), this.quantity, this.price.multiplyBy(this.quantity));
@@ -82,7 +88,7 @@ public class InvoiceRequestFactory {
             return request;
         }
 
-        public InvoiceRequestBuilder attachClientData(ClientData data){
+        public InvoiceRequestBuilder attachClientData(ClientData data) {
             this.data = data;
             return this;
         }
