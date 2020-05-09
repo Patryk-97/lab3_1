@@ -3,7 +3,6 @@ package pl.com.bottega.ecommerce.sales.domain.invoicing;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
@@ -16,6 +15,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.apache.commons.lang3.RandomStringUtils.*;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class BookKeeperTestScenario {
 
@@ -128,6 +128,7 @@ class BookKeeperTestScenario {
 
         InvoiceRequest secondRequest = new InvoiceRequest(secondTestClient);
         secondRequest.add(new RequestItem(testProduct.generateSnapshot(), 1, Money.ZERO));
+
         BookKeeper keeper = new BookKeeper(mockedFactory);
 
         var firstInvoice = keeper.issuance(firstRequest, mockedPolicy);
@@ -141,5 +142,40 @@ class BookKeeperTestScenario {
         assertThat(firstCustomer, is(firstTestClient));
         assertThat(secondCustomer, is(secondTestClient));
         assertThat(firstCustomer, not(secondCustomer));
+    }
+
+    @Test
+    void invoiceRequestThatHaveNotAnyItemsShouldNotCallCalculateTax() {
+        Mockito.doReturn(testTax)
+                .when(mockedPolicy)
+                .calculateTax(Mockito.any(ProductType.class), Mockito.any(Money.class));
+
+        Mockito.doReturn(new Invoice(Id.generate(), mockedClientData))
+                .when(mockedFactory)
+                .create(Mockito.any(ClientData.class));
+        InvoiceRequest request = new InvoiceRequest(mockedClientData);
+
+        BookKeeper keeper = new BookKeeper(mockedFactory);
+
+        keeper.issuance(request, mockedPolicy);
+
+        Mockito.verify(mockedPolicy, Mockito.times(0)).calculateTax(Mockito.any(ProductType.class), Mockito.any(Money.class));
+    }
+
+    @Test
+    void invoiceRequestShouldCallCreateMethodOfInvoiceFactoryAndThrowNPEIfBasicInvoiceIsNull() {
+        Mockito.doReturn(testTax)
+                .when(mockedPolicy)
+                .calculateTax(Mockito.any(ProductType.class), Mockito.any(Money.class));
+        Mockito.doReturn(null)
+                .when(mockedFactory)
+                .create(Mockito.any(ClientData.class));
+        Product testProduct = new Product(Id.generate(), Money.ZERO, "ProductMock", ProductType.STANDARD);
+        InvoiceRequest request = new InvoiceRequest(mockedClientData);
+        request.add(new RequestItem(testProduct.generateSnapshot(), 1, Money.ZERO));
+        BookKeeper keeper = new BookKeeper(mockedFactory);
+
+        assertThrows(NullPointerException.class, () -> keeper.issuance(request, mockedPolicy));
+        Mockito.verify(mockedFactory, Mockito.atLeast(1)).create(Mockito.any(ClientData.class));
     }
 }
