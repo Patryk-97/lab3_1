@@ -76,4 +76,16 @@ public class BookKeeperTest {
         Assert.assertThat(invoice.getItems().size(), is(0));
     }
 
+    @Test
+    public void expectedNoCalculateTaxCalls() {
+        when(taxPolicy.calculateTax(any(), any())).thenReturn(tax);
+        BookKeeper bookKeeper = new BookKeeper(invoiceFactory);
+
+        Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+
+        Mockito.verify(taxPolicy, times(0)).calculateTax(any(), any());
+    }
+
+
+
 }
