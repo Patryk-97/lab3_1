@@ -161,4 +161,9 @@ class BookKeeperTestScenario {
 
         Mockito.verify(mockedPolicy, Mockito.times(0)).calculateTax(Mockito.any(ProductType.class), Mockito.any(Money.class));
     }
+
+    @Test
+    void invoiceRequestShouldCallCreateMethodOfInvoiceFactoryAndThrowNPEIfBasicInvoiceIsNull(){
+        
+    }
 }
