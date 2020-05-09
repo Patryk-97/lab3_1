@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 
 public class BookKeeperTest {
 
-    private InvoiceFactory invoiceFactory;
+    private InvoiceFactory invoiceFactory = new InvoiceFactory();
     private InvoiceRequest invoiceRequest;
     private ClientData clientData;
     private TaxPolicy taxPolicy;
@@ -27,6 +27,7 @@ public class BookKeeperTest {
     private ProductData productData;
     private Tax tax;
     private BookKeeper bookKeeper;
+    private RequestBuilder productBuilder;
 
 
 
@@ -36,9 +37,8 @@ public class BookKeeperTest {
         invoiceRequest = new InvoiceRequest(clientData);
         money = Money.ZERO;
         productData = new ProductData(Id.generate(), money, "productNameStub", ProductType.STANDARD, new Date());
-        requestItem = new RequestItem(productData, 0, money);
-        invoiceFactory = new InvoiceFactory();
         tax = new Tax(money, "taxStub");
+        requestItem  = new RequestBuilder().setProductData(this.productData).setMoney(Money.ZERO).build();
         taxPolicy = mock(TaxPolicy.class);
         bookKeeper = new BookKeeper(invoiceFactory);
     }
