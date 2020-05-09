@@ -146,6 +146,19 @@ class BookKeeperTestScenario {
 
     @Test
     void invoiceRequestThatHaveNotAnyItemsShouldNotCallCalculateTax() {
+        Mockito.doReturn(testTax)
+                .when(mockedPolicy)
+                .calculateTax(Mockito.any(ProductType.class), Mockito.any(Money.class));
 
+        Mockito.doReturn(new Invoice(Id.generate(), mockedClientData))
+                .when(mockedFactory)
+                .create(Mockito.any(ClientData.class));
+        InvoiceRequest request = new InvoiceRequest(mockedClientData);
+
+        BookKeeper keeper = new BookKeeper(mockedFactory);
+
+        keeper.issuance(request, mockedPolicy);
+
+        Mockito.verify(mockedPolicy, Mockito.times(0)).calculateTax(Mockito.any(ProductType.class), Mockito.any(Money.class));
     }
 }
