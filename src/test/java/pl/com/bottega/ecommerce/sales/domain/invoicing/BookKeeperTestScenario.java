@@ -41,7 +41,7 @@ class BookKeeperTestScenario {
         Mockito.doReturn(new Invoice(Id.generate(), mockedClientData))
                 .when(mockedFactory)
                 .create(Mockito.any(ClientData.class));
-        
+
         InvoiceRequest request = InvoiceRequestFactory.builder()
                 .attachClientData(mockedClientData)
                 .addItem()
@@ -66,14 +66,18 @@ class BookKeeperTestScenario {
                 .when(mockedPolicy)
                 .calculateTax(Mockito.any(ProductType.class), Mockito.any(Money.class));
 
-        Product testProduct = new Product(Id.generate(), Money.ZERO, "ProductMock", ProductType.STANDARD);
 
         Mockito.doReturn(new Invoice(Id.generate(), mockedClientData))
                 .when(mockedFactory)
                 .create(Mockito.any(ClientData.class));
 
-        InvoiceRequest request = new InvoiceRequest(mockedClientData);
-        request.add(new RequestItem(testProduct.generateSnapshot(), 1, Money.ZERO));
+        InvoiceRequest request = InvoiceRequestFactory.builder()
+                .attachClientData(mockedClientData)
+                .addItem()
+                .ofProductName("ProductMock")
+                .ofQuantity(1)
+                .accept()
+                .build();
 
         BookKeeper keeper = new BookKeeper(mockedFactory);
 
@@ -86,18 +90,23 @@ class BookKeeperTestScenario {
     void invoiceRequestWithPreparedItemShouldReturnInvoiceWithItemThatHaveUnmodifiedDataAsProvidedAsInput() {
         String name = randomAlphabetic(8);
         Id testId = Id.generate();
+
         Mockito.doReturn(testTax)
                 .when(mockedPolicy)
                 .calculateTax(Mockito.any(ProductType.class), Mockito.any(Money.class));
-
-        Product testProduct = new Product(testId, Money.ZERO, name, ProductType.STANDARD);
 
         Mockito.doReturn(new Invoice(Id.generate(), mockedClientData))
                 .when(mockedFactory)
                 .create(Mockito.any(ClientData.class));
 
-        InvoiceRequest request = new InvoiceRequest(mockedClientData);
-        request.add(new RequestItem(testProduct.generateSnapshot(), 1, Money.ZERO));
+        var request = InvoiceRequestFactory.builder()
+                .attachClientData(mockedClientData)
+                .addItem()
+                .ofProductName(name)
+                .ofQuantity(1)
+                .ofId(testId)
+                .accept()
+                .build();
 
         BookKeeper keeper = new BookKeeper(mockedFactory);
 
