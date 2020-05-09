@@ -11,8 +11,7 @@ import pl.com.bottega.ecommerce.sharedkernel.Money;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-
+import static org.apache.commons.lang3.RandomStringUtils.*;
 class BookKeeperTestScenario {
 
     private Tax testTax;
@@ -45,14 +44,13 @@ class BookKeeperTestScenario {
         request.add(new RequestItem(testProduct2.generateSnapshot(), 1, Money.ZERO));
         BookKeeper keeper = new BookKeeper(mockedFactory);
 
-        Invoice result = keeper.issuance(request, mockedPolicy);
-        
-        assertThat(result, notNullValue());
+        keeper.issuance(request, mockedPolicy);
+
         Mockito.verify(mockedPolicy,Mockito.times(2)).calculateTax(Mockito.any(ProductType.class), Mockito.any(Money.class));
     }
 
     @Test
-    void invoiceRequestWithOneRequestShouldReturnInvoiceWithOneItem() {
+    void invoiceRequestWithOneItemShouldReturnInvoiceWithOneItem() {
         Mockito.doReturn(testTax)
                 .when(mockedPolicy)
                 .calculateTax(Mockito.any(ProductType.class), Mockito.any(Money.class));
@@ -73,4 +71,39 @@ class BookKeeperTestScenario {
         assertThat(result, is(1));
     }
 
+    @Test
+    void invoiceRequestWithPreparedItemShouldReturnInvoiceWithItemThatHaveUnmodifiedDataAsProvidedAsInput(){
+        String name = randomAlphabetic(8);
+        Id testId = Id.generate();
+        Mockito.doReturn(testTax)
+                .when(mockedPolicy)
+                .calculateTax(Mockito.any(ProductType.class), Mockito.any(Money.class));
+
+        Product testProduct = new Product(testId, Money.ZERO, name, ProductType.STANDARD);
+
+        Mockito.doReturn(new Invoice(Id.generate(), mockedClientData))
+                .when(mockedFactory)
+                .create(Mockito.any(ClientData.class));
+
+        InvoiceRequest request = new InvoiceRequest(mockedClientData);
+        request.add(new RequestItem(testProduct.generateSnapshot(), 1, Money.ZERO));
+
+        BookKeeper keeper = new BookKeeper(mockedFactory);
+
+        var product = keeper.issuance(request, mockedPolicy).getItems().get(0).getProduct();
+        var resultName = product.getName();
+        var resultPrice = product.getPrice();
+        var resultType = product.getType();
+        var resultId = product.getProductId();
+
+        assertThat(resultName, is(name));
+        assertThat(resultPrice, is(Money.ZERO));
+        assertThat(resultType, is(ProductType.STANDARD));
+        assertThat(resultId, is(testId));
+    }
+
+    @Test
+    void method2(){
+
+    }
 }
