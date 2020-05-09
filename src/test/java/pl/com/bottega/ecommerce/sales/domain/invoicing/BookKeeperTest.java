@@ -96,4 +96,17 @@ public class BookKeeperTest {
         Assert.assertThat(invoice.getNet(), is(Money.ZERO));
     }
 
+    @Test
+    public void expectedFourCalculateTaxCallsForTwoInvoicesTwoItemsEach() {
+        when(taxPolicy.calculateTax(any(), any())).thenReturn(tax);
+        BookKeeper bookKeeper = new BookKeeper(invoiceFactory);
+        invoiceRequest.add(requestItem);
+        invoiceRequest.add(requestItem);
+
+        Invoice firstInvoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+        Invoice secondInvoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+
+        Mockito.verify(taxPolicy, times(4)).calculateTax(any(), any());
+    }
+
 }
