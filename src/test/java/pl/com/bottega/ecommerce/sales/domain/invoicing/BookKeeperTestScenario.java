@@ -128,6 +128,7 @@ class BookKeeperTestScenario {
 
         InvoiceRequest secondRequest = new InvoiceRequest(secondTestClient);
         secondRequest.add(new RequestItem(testProduct.generateSnapshot(), 1, Money.ZERO));
+
         BookKeeper keeper = new BookKeeper(mockedFactory);
 
         var firstInvoice = keeper.issuance(firstRequest, mockedPolicy);
@@ -141,5 +142,10 @@ class BookKeeperTestScenario {
         assertThat(firstCustomer, is(firstTestClient));
         assertThat(secondCustomer, is(secondTestClient));
         assertThat(firstCustomer, not(secondCustomer));
+    }
+
+    @Test
+    void invoiceRequestThatHaveNotAnyItemsShouldNotCallCalculateTax() {
+
     }
 }
