@@ -66,4 +66,10 @@ public class BookKeeperTest {
         assertEquals(0, invoice.getItems()
                                .size());
     }
+
+    @Test
+    public void invoiceRequestWithoutItemsShouldNoCallCalculateTaxMethod() {
+        bookKeeper.issuance(invoiceRequest, taxPolicy);
+        verify(taxPolicy, times(0)).calculateTax(any(ProductType.class), any(Money.class));
+    }
 }
