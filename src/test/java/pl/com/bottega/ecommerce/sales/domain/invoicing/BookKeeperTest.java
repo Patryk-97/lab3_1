@@ -31,6 +31,7 @@ public class BookKeeperTest {
     private RequestItem unrelevantRequestItem;
     private ProductBuilder productBuilder;
     private RequestItemBuilder requestItemBuilder;
+    private InvoiceRequestBuilder invoiceRequestBuilder;
 
     @Mock
     private TaxPolicy taxPolicy;
@@ -44,6 +45,7 @@ public class BookKeeperTest {
         invoiceRequest = new InvoiceRequest(clientData);
         productBuilder = new ProductBuilder();
         requestItemBuilder = new RequestItemBuilder();
+        invoiceRequestBuilder = new InvoiceRequestBuilder().withClientData(clientData);
         unrelevantProduct = productBuilder.withId(Id.generate())
                                           .withPrice(Money.ZERO)
                                           .withName("")
@@ -59,7 +61,8 @@ public class BookKeeperTest {
 
     @Test
     public void invoiceRequestWithOneItemShouldReturnInvoiceWithOneItem() {
-        invoiceRequest.add(unrelevantRequestItem);
+        invoiceRequest = invoiceRequestBuilder.addRequestItem(unrelevantRequestItem)
+                                              .build();
         Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
         assertEquals(1, invoice.getItems()
                                .size());
@@ -67,14 +70,17 @@ public class BookKeeperTest {
 
     @Test
     public void invoiceRequestWithTwoItemsShouldCallCalculateTaxMethodTwoTimes() {
-        invoiceRequest.add(unrelevantRequestItem);
-        invoiceRequest.add(unrelevantRequestItem);
+        for (int i = 0; i < 2; i++) {
+            invoiceRequestBuilder.addRequestItem(unrelevantRequestItem);
+        }
+        invoiceRequest = invoiceRequestBuilder.build();
         bookKeeper.issuance(invoiceRequest, taxPolicy);
         verify(taxPolicy, times(2)).calculateTax(any(), any());
     }
 
     @Test
     public void invoiceRequestWithoutItemsShouldReturnInvoiceWithoutItems() {
+        invoiceRequest = invoiceRequestBuilder.build();
         Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
         assertEquals(0, invoice.getItems()
                                .size());
@@ -82,6 +88,7 @@ public class BookKeeperTest {
 
     @Test
     public void invoiceRequestWithoutItemsShouldNoCallCalculateTaxMethod() {
+        invoiceRequest = invoiceRequestBuilder.build();
         bookKeeper.issuance(invoiceRequest, taxPolicy);
         verify(taxPolicy, times(0)).calculateTax(any(), any());
     }
@@ -89,8 +96,9 @@ public class BookKeeperTest {
     @Test
     public void invoiceRequestWithFiveItemsShouldReturnInvoiceWithFiveItems() {
         for (int i = 0; i < 5; i++) {
-            invoiceRequest.add(unrelevantRequestItem);
+            invoiceRequestBuilder.addRequestItem(unrelevantRequestItem);
         }
+        invoiceRequest = invoiceRequestBuilder.build();
         Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
         assertEquals(5, invoice.getItems()
                                .size());
@@ -99,8 +107,9 @@ public class BookKeeperTest {
     @Test
     public void invoiceRequestWithFiveItemsShouldCallCalculateTaxMethodFiveTimes() {
         for (int i = 0; i < 5; i++) {
-            invoiceRequest.add(unrelevantRequestItem);
+            invoiceRequestBuilder.addRequestItem(unrelevantRequestItem);
         }
+        invoiceRequest = invoiceRequestBuilder.build();
         bookKeeper.issuance(invoiceRequest, taxPolicy);
         verify(taxPolicy, times(5)).calculateTax(any(), any());
     }
