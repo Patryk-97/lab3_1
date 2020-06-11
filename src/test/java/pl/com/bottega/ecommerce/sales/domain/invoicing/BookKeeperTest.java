@@ -82,4 +82,13 @@ public class BookKeeperTest {
         assertEquals(5, invoice.getItems()
                                .size());
     }
+
+    @Test
+    public void invoiceRequestWithFiveItemsShouldCallCalculateTaxMethodFiveTimes() {
+        for (int i = 0; i < 5; i++) {
+            invoiceRequest.add(unrelevantRequestItem);
+        }
+        bookKeeper.issuance(invoiceRequest, taxPolicy);
+        verify(taxPolicy, times(5)).calculateTax(any(ProductType.class), any(Money.class));
+    }
 }
