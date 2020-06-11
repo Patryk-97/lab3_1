@@ -41,7 +41,7 @@ public class BookKeeperTest {
         unrelevantProduct = new Product(Id.generate(), Money.ZERO, "", ProductType.STANDARD);
         unrelevantRequestItem = new RequestItem(unrelevantProduct.generateSnapshot(), 1, Money.ZERO);
         Tax tax = new Tax(Money.ZERO, "");
-        when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(tax);
+        when(taxPolicy.calculateTax(any(), any())).thenReturn(tax);
     }
 
     @Test
@@ -57,7 +57,7 @@ public class BookKeeperTest {
         invoiceRequest.add(unrelevantRequestItem);
         invoiceRequest.add(unrelevantRequestItem);
         bookKeeper.issuance(invoiceRequest, taxPolicy);
-        verify(taxPolicy, times(2)).calculateTax(any(ProductType.class), any(Money.class));
+        verify(taxPolicy, times(2)).calculateTax(any(), any());
     }
 
     @Test
@@ -70,7 +70,7 @@ public class BookKeeperTest {
     @Test
     public void invoiceRequestWithoutItemsShouldNoCallCalculateTaxMethod() {
         bookKeeper.issuance(invoiceRequest, taxPolicy);
-        verify(taxPolicy, times(0)).calculateTax(any(ProductType.class), any(Money.class));
+        verify(taxPolicy, times(0)).calculateTax(any(), any());
     }
 
     @Test
@@ -89,6 +89,6 @@ public class BookKeeperTest {
             invoiceRequest.add(unrelevantRequestItem);
         }
         bookKeeper.issuance(invoiceRequest, taxPolicy);
-        verify(taxPolicy, times(5)).calculateTax(any(ProductType.class), any(Money.class));
+        verify(taxPolicy, times(5)).calculateTax(any(), any());
     }
 }
