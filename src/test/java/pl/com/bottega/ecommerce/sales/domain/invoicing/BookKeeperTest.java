@@ -2,6 +2,8 @@ package pl.com.bottega.ecommerce.sales.domain.invoicing;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +24,8 @@ public class BookKeeperTest {
     private BookKeeper bookKeeper;
     private InvoiceRequest invoiceRequest;
     private Tax tax;
-
+    private Product unrelevantProduct;
+    private RequestItem unrelevantRequestItem;
     @Mock
     private TaxPolicy taxPolicy;
 
@@ -33,17 +36,25 @@ public class BookKeeperTest {
     public void setUp() {
         bookKeeper = new BookKeeper(new InvoiceFactory());
         invoiceRequest = new InvoiceRequest(clientData);
+        unrelevantProduct = new Product(Id.generate(), Money.ZERO, "", ProductType.STANDARD);
+        unrelevantRequestItem = new RequestItem(unrelevantProduct.generateSnapshot(), 1, Money.ZERO);
         tax = new Tax(Money.ZERO, "");
         when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(tax);
     }
 
     @Test
     public void invoiceRequestWithOneItemShouldReturnInvoiceWithOneItem() {
-        Product product = new Product(Id.generate(), Money.ZERO, "", ProductType.STANDARD);
-        RequestItem requestItem = new RequestItem(product.generateSnapshot(), 1, Money.ZERO);
-        invoiceRequest.add(requestItem);
+        invoiceRequest.add(unrelevantRequestItem);
         Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
         assertEquals(1, invoice.getItems()
                                .size());
+    }
+
+    @Test
+    public void invoiceRequestWithTwoItemsShouldCallCalculateTaxMethodTwoTimes() {
+        invoiceRequest.add(unrelevantRequestItem);
+        invoiceRequest.add(unrelevantRequestItem);
+        bookKeeper.issuance(invoiceRequest, taxPolicy);
+        verify(taxPolicy, times(2)).calculateTax(any(ProductType.class), any(Money.class));
     }
 }
