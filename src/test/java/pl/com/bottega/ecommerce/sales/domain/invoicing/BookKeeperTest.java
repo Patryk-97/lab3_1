@@ -17,6 +17,7 @@ import org.mockito.quality.Strictness;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.Product;
+import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductBuilder;
 import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
 
@@ -28,6 +29,8 @@ public class BookKeeperTest {
     private InvoiceRequest invoiceRequest;
     private Product unrelevantProduct;
     private RequestItem unrelevantRequestItem;
+    private ProductBuilder productBuilder;
+
     @Mock
     private TaxPolicy taxPolicy;
 
@@ -38,7 +41,12 @@ public class BookKeeperTest {
     public void setUp() {
         bookKeeper = new BookKeeper(new InvoiceFactory());
         invoiceRequest = new InvoiceRequest(clientData);
-        unrelevantProduct = new Product(Id.generate(), Money.ZERO, "", ProductType.STANDARD);
+        productBuilder = new ProductBuilder();
+        unrelevantProduct = productBuilder.withId(Id.generate())
+                                          .withPrice(Money.ZERO)
+                                          .withName("")
+                                          .withProductType(ProductType.STANDARD)
+                                          .build();
         unrelevantRequestItem = new RequestItem(unrelevantProduct.generateSnapshot(), 1, Money.ZERO);
         Tax tax = new Tax(Money.ZERO, "");
         when(taxPolicy.calculateTax(any(), any())).thenReturn(tax);
