@@ -30,6 +30,7 @@ public class BookKeeperTest {
     private Product unrelevantProduct;
     private RequestItem unrelevantRequestItem;
     private ProductBuilder productBuilder;
+    private RequestItemBuilder requestItemBuilder;
 
     @Mock
     private TaxPolicy taxPolicy;
@@ -42,12 +43,16 @@ public class BookKeeperTest {
         bookKeeper = new BookKeeper(new InvoiceFactory());
         invoiceRequest = new InvoiceRequest(clientData);
         productBuilder = new ProductBuilder();
+        requestItemBuilder = new RequestItemBuilder();
         unrelevantProduct = productBuilder.withId(Id.generate())
                                           .withPrice(Money.ZERO)
                                           .withName("")
                                           .withProductType(ProductType.STANDARD)
                                           .build();
-        unrelevantRequestItem = new RequestItem(unrelevantProduct.generateSnapshot(), 1, Money.ZERO);
+        unrelevantRequestItem = requestItemBuilder.withProductData(unrelevantProduct.generateSnapshot())
+                                                  .withQuantity(1)
+                                                  .withTotalCost(Money.ZERO)
+                                                  .build();
         Tax tax = new Tax(Money.ZERO, "");
         when(taxPolicy.calculateTax(any(), any())).thenReturn(tax);
     }
