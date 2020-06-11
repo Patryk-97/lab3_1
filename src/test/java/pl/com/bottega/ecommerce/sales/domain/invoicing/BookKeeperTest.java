@@ -55,8 +55,7 @@ public class BookKeeperTest {
                                                   .withQuantity(1)
                                                   .withTotalCost(Money.ZERO)
                                                   .build();
-        Tax tax = new Tax(Money.ZERO, "");
-        when(taxPolicy.calculateTax(any(), any())).thenReturn(tax);
+        when(taxPolicy.calculateTax(any(), any())).thenReturn(new Tax(Money.ZERO, ""));
     }
 
     @Test
