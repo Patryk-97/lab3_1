@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.ClientData;
 import pl.com.bottega.ecommerce.canonicalmodel.publishedlanguage.Id;
@@ -19,11 +21,11 @@ import pl.com.bottega.ecommerce.sales.domain.productscatalog.ProductType;
 import pl.com.bottega.ecommerce.sharedkernel.Money;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class BookKeeperTest {
 
     private BookKeeper bookKeeper;
     private InvoiceRequest invoiceRequest;
-    private Tax tax;
     private Product unrelevantProduct;
     private RequestItem unrelevantRequestItem;
     @Mock
@@ -38,7 +40,7 @@ public class BookKeeperTest {
         invoiceRequest = new InvoiceRequest(clientData);
         unrelevantProduct = new Product(Id.generate(), Money.ZERO, "", ProductType.STANDARD);
         unrelevantRequestItem = new RequestItem(unrelevantProduct.generateSnapshot(), 1, Money.ZERO);
-        tax = new Tax(Money.ZERO, "");
+        Tax tax = new Tax(Money.ZERO, "");
         when(taxPolicy.calculateTax(any(ProductType.class), any(Money.class))).thenReturn(tax);
     }
 
@@ -56,5 +58,12 @@ public class BookKeeperTest {
         invoiceRequest.add(unrelevantRequestItem);
         bookKeeper.issuance(invoiceRequest, taxPolicy);
         verify(taxPolicy, times(2)).calculateTax(any(ProductType.class), any(Money.class));
+    }
+
+    @Test
+    public void invoiceRequestWithoutItemsShouldReturnInvoiceWithoutItems() {
+        Invoice invoice = bookKeeper.issuance(invoiceRequest, taxPolicy);
+        assertEquals(0, invoice.getItems()
+                               .size());
     }
 }
